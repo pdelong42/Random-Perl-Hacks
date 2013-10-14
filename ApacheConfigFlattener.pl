@@ -34,7 +34,15 @@ sub myglob { split ' ', qx( echo @_ ) } # footnote 1 #
 
 sub ProcessFile($);
 
-sub ProcessFiles{ ProcessFile $ARG foreach @_ }
+sub ProcessFiles{
+
+   foreach( @_ ) {
+
+      say "# entering $ARG" if $verbose;
+      ProcessFile $ARG;
+      say "# exiting  $ARG" if $verbose;
+   }
+}
 
 sub ProcessFile($) {
 
@@ -75,6 +83,9 @@ sub ProcessFile($) {
       # process the include file
       my $include = $1;
 
+      $include = "/etc/httpd/" . $include
+         unless $include =~ m#^\/#;
+
       local $depth;
 
       if( ++$depth > $maxDepth ) {
@@ -83,9 +94,7 @@ sub ProcessFile($) {
          next;
       }
 
-      say "# entering $include" if $verbose;
       ProcessFiles myglob $include;
-      say "# exiting  $include" if $verbose;
    }
 }
 
