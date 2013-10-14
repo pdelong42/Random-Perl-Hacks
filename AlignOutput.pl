@@ -19,16 +19,20 @@ use English '-no_match_vars';
 use Getopt::Long qw( :config no_ignore_case );
 
 my $leftflush;
+my $separators = '[\t\s]+';
 
-GetOptions( 'leftflush' => \$leftflush )
-   or die "getopt error\n";
+GetOptions(
+   'leftflush'    => \$leftflush,
+   'separators=s' => \$separators,
+) or die "getopt error\n";
 
 my( @lines, @widest );
 
 foreach( readline STDIN ) {
 
    my $i = -1;
-   my @fields = split /[\t\s]+/;
+   my @fields = split qr{$separators};
+
    push @lines, \@fields;
 
    foreach( @fields ) {
@@ -46,7 +50,7 @@ foreach( readline STDIN ) {
 my $format = '';
 
 $format .= sprintf( "%%%s%ss", $leftflush ? '-' : '', 1 + $ARG )
-    foreach @widest;
+   foreach @widest;
 
 $format .= "\n";
 
