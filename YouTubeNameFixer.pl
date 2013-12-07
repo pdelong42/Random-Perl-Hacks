@@ -5,6 +5,7 @@ use warnings;
 
 use File::Copy;
 use File::Find;
+use File::Path qw( make_path );
 use English qw( -no_match_vars );
 
 my $wanted = sub {
@@ -18,12 +19,12 @@ my $wanted = sub {
    warn "DEBUG: [$ID] $old\n";
 
    if( $? < 0 ) {
-      print "ERROR: [$ID] failed to execute: $!\n";
+      warn "ERROR: [$ID] failed to execute: $!\n";
       return;
    }
 
    if( $? & 127 ) {
-      printf "ERROR: [$ID] child died with signal %d, %s coredump\n",
+      warn "ERROR: [$ID] child died with signal %d, %s coredump\n",
            ( $? & 127 ),  ( $? & 128 ) ? 'with' : 'without';
       return;
    }
@@ -31,7 +32,7 @@ my $wanted = sub {
    my $rc = $? >> 8;
 
    unless( $rc == 0 ) {
-      printf "ERROR: [$ID] child exited with value $rc\n";
+      warn "ERROR: [$ID] child exited with value $rc\n";
       return;
    }
 
@@ -39,11 +40,24 @@ my $wanted = sub {
 
    chomp $new;
 
+   my @tmp = split '/', $new;
+
+   pop @tmp;
+
+   my $dir = join '/', @tmp;
+
+   make_path $dir;
+
+   unless( -d $dir ) {
+      warn "ERROR: [$ID] unable to create directory $dir\n";
+      return;
+   }
+
    warn "WARNING: [$ID] expected only one line of output, but caught more\n"
       if( scalar( @output ) > 0 );
 
    if( -f $new ) {
-      warn qq(WARNING: [$ID] destination already exists - skipping "$new");
+      warn qq(WARNING: [$ID] destination already exists - skipping "$new"\n);
       return;
    }
 
