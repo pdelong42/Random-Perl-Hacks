@@ -15,7 +15,7 @@ my $wanted = sub {
    my $old = $File::Find::fullname;
    my @output = qx( ~/Stuff/bin/youtube-dl -s --get-filename http://www.youtube.com/watch?v=$ID 2> /dev/null );
 
-   warn "DEBUG: $ID $old\n";
+   warn "DEBUG: [$ID] $old\n";
 
    if( $? < 0 ) {
       print "ERROR: [$ID] failed to execute: $!\n";
@@ -41,6 +41,11 @@ my $wanted = sub {
 
    warn "WARNING: [$ID] expected only one line of output, but caught more\n"
       if( scalar( @output ) > 0 );
+
+   if( -f $new ) {
+      warn qq(WARNING: [$ID] destination already exists - skipping "$new");
+      return;
+   }
 
    unless( copy $old, $new ) {
       warn qq(ERROR: [$ID] unable to copy "$old" to "$new"\n);
