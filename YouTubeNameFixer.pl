@@ -3,6 +3,7 @@
 use strict;
 use warnings;
 
+use File::Copy;
 use File::Find;
 use English qw( -no_match_vars );
 
@@ -31,16 +32,30 @@ my $wanted = sub {
       return;
    }
 
+   my $old = $File::Find::fullname;
    my $new = shift @output;
 
    chomp $new;
 
-   warn "WARNING: [$ID] expected only one line of output, but caught more"
+   warn "WARNING: [$ID] expected only one line of output, but caught more\n"
       if( scalar( @output ) > 0 );
 
-   #print "DEBUG: $ID [$3] $1\n";
-   #print "DEBUG: $ID $File::Find::fullname\n";
-   print "DEBUG: $ID $new\n";
+   warn "DEBUG: $ID $old\n";
+
+   unless( copy $old, $new ) {
+      warn qq(ERROR: [$ID] unable to copy "$old" to "$new"\n);
+      return;
+   }
+
+   print qq(created: $new\n);
+
+#   if( unlink( $old ) > 0 ) {
+#      print qq(moved "$old" to "$new"\n);
+#   } else {
+#      warn qq(ERROR: [$ID] unable to remove "$old"\n);
+#      print qq(copied "$old" to "$new"\n);
+#   }
+#
 };
 
 push @ARGV, '.'
