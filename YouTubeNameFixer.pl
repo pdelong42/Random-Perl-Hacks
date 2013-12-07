@@ -12,7 +12,10 @@ my $wanted = sub {
    return unless m{ ( .* ) \- ( .{11} ) \. ( webm | mp4 | flv ) }x;
 
    my $ID = $2;
+   my $old = $File::Find::fullname;
    my @output = qx( ~/Stuff/bin/youtube-dl -s --get-filename http://www.youtube.com/watch?v=$ID 2> /dev/null );
+
+   warn "DEBUG: $ID $old\n";
 
    if( $? < 0 ) {
       print "ERROR: [$ID] failed to execute: $!\n";
@@ -32,15 +35,12 @@ my $wanted = sub {
       return;
    }
 
-   my $old = $File::Find::fullname;
    my $new = shift @output;
 
    chomp $new;
 
    warn "WARNING: [$ID] expected only one line of output, but caught more\n"
       if( scalar( @output ) > 0 );
-
-   warn "DEBUG: $ID $old\n";
 
    unless( copy $old, $new ) {
       warn qq(ERROR: [$ID] unable to copy "$old" to "$new"\n);
