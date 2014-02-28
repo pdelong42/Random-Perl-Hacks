@@ -14,12 +14,13 @@ foreach( @ARGV ) {
 
    my @tmp = split '/';
    my $max = 2 ** ( 32 - $tmp[1] ) - 1;
-   my $net = unpack( 'N', inet_aton( $tmp[0] ) );
+   my $addr = unpack( 'N', inet_aton( $tmp[0] ) );
+   my $mask = 2 ** 32 - 1 - $max;
    my $list = "${ARG}:\n";
 
    foreach( 0..$max ) {
 
-      my $naddr = pack 'N', $net | $ARG;
+      my $naddr = pack 'N', $addr & $mask | $ARG;
 
       my( $name, $aliases, $addrtype, $length, @addrs ) = gethostbyaddr $naddr, AF_INET;
 
