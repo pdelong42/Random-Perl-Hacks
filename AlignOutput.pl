@@ -18,11 +18,11 @@ use warnings;
 use English '-no_match_vars';
 use Getopt::Long qw( :config no_ignore_case );
 
-my $leftflush;
+my $just_str = '';
 my $separators = '[\t\s]+';
 
 GetOptions(
-   'leftflush'    => \$leftflush,
+   'justify=s'    => \$just_str,
    'separators=s' => \$separators,
 ) or die "getopt error\n";
 
@@ -47,16 +47,22 @@ foreach( readline STDIN ) {
    }
 }
 
-my $format = '';
+my @formats;
+my @just_arr = split '', $just_str;
 
-$format .= sprintf( "%%%s%ss", $leftflush ? '-' : '', 1 + $ARG )
-   foreach @widest;
+foreach( @widest ) {
 
-$format .= "\n";
+   my $justify = shift @just_arr;
+
+   $justify = '' unless defined $justify;
+   $justify = '' if( $justify eq '+' );
+
+   push @formats, sprintf( "%%%s%ss", $justify, $ARG )
+}
+
+my $format = join( ' ', @formats ) . "\n";
 
 my $widest = scalar @widest;
-
-#print "DEBUG: widest = $widest; format = $format\n";
 
 foreach( @lines ) {
 
