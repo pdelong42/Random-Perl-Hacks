@@ -1,2 +1,2 @@
 install:
-	/usr/bin/install -v -m 0755 *.pl ~/Stuff/bin
+	/usr/bin/ln -s -f -t ~/Stuff/bin ${PWD}/*.pl
