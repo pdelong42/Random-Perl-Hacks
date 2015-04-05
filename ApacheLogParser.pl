@@ -25,12 +25,11 @@ my $logline = qr{
 
    \s+
 
-   # client username
    ( \S+ )
 
    \s+
 
-   # server username
+   # remote username
    ( \S+ )
 
    \s+
@@ -44,7 +43,7 @@ my $logline = qr{
 
    # request
    \"
-   ( .+? )
+   ( .*? )
    (?<!\\) \"
 
    \s+
