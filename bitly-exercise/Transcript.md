@@ -66,5 +66,56 @@ First, let's see what our most popular ten requests are:
     710x GET /javascript-api.js?version=latest&login=jornalextra&apiKey=R_c24275b79724caceb2d02aacab3c4f45 HTTP/1.1
     654x POST /data/clicks HTTP/1.1
     606x GET /javascript-api.js?version=latest&login=tweettrackjs&apiKey=R_7e9987b2fd13d7e4e881f9cbb168f523 HTTP/1.1
+    [pdelong@localhost bitly-exercise]$
+
+Next, let's zoom-in on some particular requests.
+
+There doesn't seem to be a whole lot of interesting stuff happening with that null request:
+
+    [pdelong@localhost bitly-exercise]$ ~/Stuff/bin/ApacheLogParser.pl -r -c -m request='-' -f host 2014-07-14_15.access.log | head | ~/Stuff/bin/ReplaceIP.pl 
+    114x  cpe-173-89-32-175.wi.res.rr.com 
+    84x  dynamic-acs-24-101-117-185.zoominternet.net 
+    78x  cpe-66-57-184-22.sc.res.rr.com 
+    66x  c-50-172-52-98.hsd1.il.comcast.net 
+    64x  c-71-234-165-2.hsd1.ct.comcast.net 
+    63x  64-191-131-226.xdsl.qx.net 
+    60x  d60-65-119-141.col.wideopenwest.com 
+    59x  71-219-204-203.clsp.qwest.net 
+    57x  108-225-173-228.lightspeed.jcvlfl.sbcglobal.net 
+    53x  Dynamic-IP-181583068.cable.net.co 
+    [pdelong@localhost bitly-exercise]$
+
+The traffic seems pretty evenly distributed across clients.  Normally, this is
+the kind of thing I see from an F5 (or other load-balancer), because it's just
+opening and closing a socket, without staring an HTTP conversation, just to see
+if there's anything listening (to monitor the health / availability of the pool
+members).
+
+The fact that it's coming from garden variety clients seems a little weird to
+me, and slightly suspicious.  It leads me to believe that they're bots probing
+for vicitims.  Maybe this is something to follow-up on if we're bored, but we
+seem to have bigger fish to fry right now (seems like it would be a sucker's
+game of whack-a-mole anyway).
+
+Slightly more intersting is the *actual* HTTP requests that are most frequesnt right now:
+
+    [pdelong@localhost bitly-exercise]$ ~/Stuff/bin/ApacheLogParser.pl -r -c -m request='GET / HTTP/1.1' -f host -f status 2014-07-14_15.access.log | head -3 | ~/Stuff/bin/ReplaceIP.pl 
+    2031x  23-227-176-34-customer-incero.com  301
+    61x  173.252.73.113  301
+    44x  173.252.73.112  301
+    [pdelong@localhost bitly-exercise]$ ~/Stuff/bin/ApacheLogParser.pl -r -c -m request='HEAD / HTTP/1.1' -f host -f status 2014-07-14_15.access.log | head -3 | ~/Stuff/bin/ReplaceIP.pl 
+    2031x  23-227-176-34-customer-incero.com  405
+    4x  ec2-54-228-246-119.eu-west-1.compute.amazonaws.com  405
+    3x  c-67-189-172-11.hsd1.ct.comcast.net  405
     [pdelong@localhost bitly-exercise]$ 
 
+I limited it to three in each case, because it falls-off pretty quickly.  So we
+seem to have one client making over GET and HEAD requests for "/", about once
+or twice a second (each).  We're responding to it with a permanent redirect
+(for GET) and a method-not-allowed (for HEAD), which probably comes as no
+surprise to us.
+
+That second-level domain name also looks a little odd.  Who would register a
+new second-level domain for each IP address they own?
+
+Anyway, this client warrants further investigation.
