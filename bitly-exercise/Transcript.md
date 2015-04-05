@@ -110,10 +110,10 @@ Slightly more intersting is the *actual* HTTP requests that are most frequesnt r
     [pdelong@localhost bitly-exercise]$ 
 
 I limited it to three in each case, because it falls-off pretty quickly.  So we
-seem to have one client making over GET and HEAD requests for "/", about once
-or twice a second (each).  We're responding to it with a permanent redirect
-(for GET) and a method-not-allowed (for HEAD), which probably comes as no
-surprise to us.
+seem to have one client making GET and HEAD requests for "/", about once or
+twice a second (each).  We're responding to it with a permanent redirect (for
+GET) and a method-not-allowed (for HEAD), which probably comes as no surprise
+to us.
 
 That second-level domain name also looks a little odd.  Who would register a
 new second-level domain for each IP address they own?
