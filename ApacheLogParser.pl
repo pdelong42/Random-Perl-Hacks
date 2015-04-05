@@ -73,7 +73,7 @@ my $logline = qr{ # footnote 7 #
    \s+
 
    # cookies
-   \"
+   \"?
    ( .*? )
    (?<!\\) \"
 
