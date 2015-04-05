@@ -13,6 +13,9 @@ It looks like we have a 19-minute slice of time for the access log, and a
 5-minute slice of time for the "decodes" log (which happens to fall into the
 first 5 minutes of the access log's range).
 
+Next, a quick-and-dirty attempt at finding the client IPs that are hitting us
+the most:
+
     [pdelong@localhost bitly-exercise]$ top10IP() { awk '{print $1}' $1 | sort | uniq -c | sort -nr | head; }
     [pdelong@localhost bitly-exercise]$ top10IP 2014-07-14_15.access.log 
        4066 23.227.176.34
@@ -37,3 +40,12 @@ first 5 minutes of the access log's range).
         625 14.54.187.112
         611 46.236.24.52
     [pdelong@localhost bitly-exercise]$
+
+However, parsing fields from the logs beyond the IP address will be onerous if
+we limit ourselves to just using the shell and basic sed/awk usage (at-least
+for me), so I've decided to switch to using Perl after this point (since it has
+some pretty powerful regex features).
+
+I'm cheating a little bit here, because I'll be repurposing a script I've
+already written for very similar motivations.  I'm making slight modifications
+to adapt it to the log format used in this exercise.
