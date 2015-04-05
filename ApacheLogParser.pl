@@ -15,7 +15,7 @@ my( @fields, @times, $invert, %match, $count, $reverse );
 my @months = qw( Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec );
 my %monidx = map { $months[ $ARG ] => $ARG } 0..$#months;
 
-my $logline = qr{
+my $logline = qr{ # footnote 7 #
 
    ^
 
@@ -70,12 +70,49 @@ my $logline = qr{
    ( .*? )
    (?<!\\) \"
 
-#   \s+
+   \s+
 
-#   # virtual host
-#   \"
-#   ( .+? )
-#   (?<!\\) \"
+   # cookies
+   \"
+   ( .*? )
+   (?<!\\) \"
+
+   \s+
+
+   # SSL cipher
+   ( \S+ )
+
+   \s+
+
+   # SSL protocol
+   ( \S+ )
+
+   \s+
+
+   # virtual host
+   \"
+   ( .*? )
+   (?<!\\) \"
+
+   \s+
+
+   # request time
+   ( \S+ )
+
+   \s+
+
+   # upstream address
+   ( \S+ )
+
+   \s+
+
+   # upstream status
+   ( \S+ )
+
+   \s+
+
+   # upstream response time
+   ( \S+ )
 
 }x;
 
@@ -172,7 +209,14 @@ foreach( @ARGV ) {
       $tmp{ size    } = $7;
       $tmp{ referer } = $8;
       $tmp{ agent   } = $9;
-      $tmp{ vhost   } = $10;
+      $tmp{ cookies } = $10;
+      $tmp{ cipher  } = $11;
+      $tmp{ proto   } = $12;
+      $tmp{ vhost   } = $13;
+      $tmp{ reqtime } = $14;
+      $tmp{ custom1 } = $15;
+      $tmp{ custom2 } = $16;
+      $tmp{ custom3 } = $17;
 
       #@{ $tmp{ hosts } } = split '[,\s]+', $tmp{ host }; # footnote 6 #
 
@@ -251,5 +295,10 @@ Footnote 6:
 
 Figure-out a way to make this selectable as a field and to incorporate it into
 the match logic.
+
+Footnote 7:
+
+I really need to abstract bits of this out into reusable sub-expressions,
+because there's a lot of repetition going on here.
 
 =cut
