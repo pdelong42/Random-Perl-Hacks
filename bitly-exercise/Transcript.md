@@ -119,3 +119,59 @@ That second-level domain name also looks a little odd.  Who would register a
 new second-level domain for each IP address they own?
 
 Anyway, this client warrants further investigation.
+
+It also may be worth looking into those two 173.252.73.* addresses, since they
+don't have PTR records (which is usually suspicious).
+
+Next, while there's a little time left, let's look at the "decodes" log:
+
+    [pdelong@localhost bitly-exercise]$ ~/Stuff/bin/ApacheLogParser.pl -r -c -f host 2014-07-14_15.decodes.log | head | ~/Stuff/bin/ReplaceIP.pl
+    1777x  168.143.172.211 
+    1499x  173.192.79.101-static.reverse.softlayer.com 
+    1421x  23-227-176-34-customer-incero.com 
+    1341x  23-227-176-35-customer-incero.com 
+    821x  ec2-54-228-246-119.eu-west-1.compute.amazonaws.com 
+    818x  Tweet-Crawler.iis.sinica.edu.tw 
+    748x  ec2-54-221-20-188.compute-1.amazonaws.com 
+    720x  ewrap11.xydo.com 
+    625x  14.54.187.112 
+    611x  ded3124.sysms.net 
+    [pdelong@localhost bitly-exercise]$ 
+
+That top offendor is a little suspicious, since it has no PTR record.  Let's
+have a closer look at the requests it's making:
+
+    [pdelong@localhost bitly-exercise]$ ~/Stuff/bin/ApacheLogParser.pl -r -c -m host='^(168\.143\.172\.211)$' -f status -f request 2014-07-14_15.access.log | head
+    36x 302 GET / HTTP/1.0
+    27x 301 GET / HTTP/1.0
+    6x 405 HEAD / HTTP/1.0
+    5x 404 GET /mm-jul13 HTTP/1.0
+    4x 404 GET /1rlnx1j HTTP/1.0
+    2x 404 GET /apple-touch-icon-precomposed.png HTTP/1.0
+    2x 404 GET /1wkudsq HTTP/1.0
+    2x 404 GET /blog/ HTTP/1.0
+    2x 404 HEAD /U42M82#.U8PqwDu3ulk.twitter HTTP/1.0
+    2x 404 GET /1sR1UAenatpo.st/1sR1UAe HTTP/1.0
+    [pdelong@localhost bitly-exercise]$ 
+
+And let's look at the user-agent header values (if those can be trusted):
+
+    [pdelong@localhost bitly-exercise]$ ~/Stuff/bin/ApacheLogParser.pl -r -c -m host='^(168\.143\.172\.211)$' -f agent 2014-07-14_15.access.log | head
+    37x facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)
+    25x Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/6.0)
+    23x Facebot/1.0
+    21x Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)
+    15x Microsoft Office Mobile/15.0
+    9x help@dataminr.com
+    8x -
+    5x Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.131 Safari/537.36
+    5x Mozilla/5.0 (compatible; Genieo/1.0 http://www.genieo.com/webfilter.html)
+    4x Mozilla/5.0 (iPhone; CPU iPhone OS 7_1_2 like Mac OS X) AppleWebKit/537.51.2 (KHTML, like Gecko) Version/7.0 Mobile/11D257 Safari/9537.53
+    [pdelong@localhost bitly-exercise]$ 
+
+This might actually be benign, considering the relatively harmless look of the
+requests being made from that IP, and the spread of user-agent strings coming
+from there (or maybe that's just what they *want* us to think).
+
+Anyway, time's up.  I could keep mining these logs for patterns, but you need
+to keep me honest too.
