@@ -46,6 +46,25 @@ we limit ourselves to just using the shell and basic sed/awk usage (at-least
 for me), so I've decided to switch to using Perl after this point (since it has
 some pretty powerful regex features).
 
-I'm cheating a little bit here, because I'll be repurposing a script I've
-already written for very similar motivations.  I'm making slight modifications
-to adapt it to the log format used in this exercise.
+I'm cheating a little bit here, because I've repurposed a script I've already
+written for very similar motivations.  I've made slight modifications to adapt
+it to the log format used in this exercise.  (It's called ApacheLogParser.pl,
+because I originally used it to parse Apache logs.  But naturally it can be
+used on other webservers as well (e.g., Tomcat, nginx, etc.), since they all
+use similar logging conventions.)
+
+First, let's see what our most popular ten requests are:
+
+    [pdelong@localhost bitly-exercise]$ ~/Stuff/bin/ApacheLogParser.pl -r -c -f request 2014-07-14_15.access.log | head 
+    67055x -
+    3640x GET / HTTP/1.1
+    2051x HEAD / HTTP/1.1
+    1247x GET /javascript-api.js?version=latest&login=marketwatch&apiKey=R_8762f368b71d4d4bba322c59fba00e91 HTTP/1.1
+    1061x GET /javascript-api.js?version=latest&login=directadvert&apiKey=R_2c10a7f753092ba3160586072fbbe72f HTTP/1.1
+    899x POST /data/info HTTP/1.1
+    849x GET /javascript-api.js?version=latest&login=jornaloglobo&apiKey=R_7d4719122e4a3f2977791f8f0bc620cd HTTP/1.1
+    710x GET /javascript-api.js?version=latest&login=jornalextra&apiKey=R_c24275b79724caceb2d02aacab3c4f45 HTTP/1.1
+    654x POST /data/clicks HTTP/1.1
+    606x GET /javascript-api.js?version=latest&login=tweettrackjs&apiKey=R_7e9987b2fd13d7e4e881f9cbb168f523 HTTP/1.1
+    [pdelong@localhost bitly-exercise]$ 
+
