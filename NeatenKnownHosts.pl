@@ -24,19 +24,16 @@ open( $hand, $kh_file )
 
 foreach( readline $hand ) {
    my( $host, $cipher, $hash ) = split;
-
-   my @addresses = split ',', $host;
-   push @{ $tally{ "$cipher $hash" } }, join( ',', sort( @addresses ) );
+   push @{ $tally{ "$cipher $hash" } }, split( ',', $host );
 }
 
 foreach( keys %tally ) {
-   my $tmp = '';
-   $tmp .= sprintf( "$ARG\n" ) foreach sort @{ $tally{ $ARG } };
+   my $tmp = join ',', sort @{ $tally{ $ARG } };
    $tally{ $ARG } = $tmp;
 }
 
 open( $hand, '>'. $kh_new )
    or die "unable to write $kh_new";
 
-print $hand "$tally{ $_ }\n"
+print $hand "$tally{ $ARG } $ARG\n"
    foreach sort { $tally{ $a } cmp $tally{ $b } } keys %tally;
