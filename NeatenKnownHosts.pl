@@ -8,20 +8,25 @@ use Getopt::Long qw( :config no_ignore_case );
 
 my( $hand, %tally );
 
-my $known_hosts = $ENV{ HOME } . '/.ssh/known_hosts';
+my $kh_file = $ENV{ HOME } . '/.ssh/known_hosts';
+
+my $kh_old = $kh_file . ".OLD";
+my $kh_new = $kh_file . ".NEW";
 
 GetOptions(
-   'hosts=s' => \$known_hosts,
+   'file=s' => \$kh_file,
+   'old=s'  => \$kh_old,
+   'new=s'  => \$kh_new,
 ) or die "getopt error\n";
 
-open( $hand, $known_hosts )
-   or die "unable to read $known_hosts";
+open( $hand, $kh_file )
+   or die "unable to read $kh_file";
 
 foreach( readline $hand ) {
    my( $host, $cipher, $hash ) = split;
 
    my @addresses = split ',', $host;
-   push @{ $tally{ $hash } }, join( ',', sort( @addresses ) );
+   push @{ $tally{ "$cipher $hash" } }, join( ',', sort( @addresses ) );
 }
 
 foreach( keys %tally ) {
@@ -30,5 +35,8 @@ foreach( keys %tally ) {
    $tally{ $ARG } = $tmp;
 }
 
-print "$tally{ $_ }\n"
+open( $hand, '>'. $kh_new )
+   or die "unable to write $kh_new";
+
+print $hand "$tally{ $_ }\n"
    foreach sort { $tally{ $a } cmp $tally{ $b } } keys %tally;
