@@ -20,7 +20,7 @@ GetOptions(
 ) or die "getopt error\n";
 
 open( $hand, $kh_file )
-   or die "unable to read $kh_file";
+   or die "unable to read $kh_file\n";
 
 foreach( readline $hand ) {
    my( $host, $cipher, $hash ) = split;
@@ -32,8 +32,23 @@ foreach( keys %tally ) {
    $tally{ $ARG } = $tmp;
 }
 
+die "$kh_new exists - aborting\n"
+   if -f $kh_new;
+
 open( $hand, '>'. $kh_new )
-   or die "unable to write $kh_new";
+   or die "unable to write $kh_new\n";
 
 print $hand "$tally{ $ARG } $ARG\n"
    foreach sort { $tally{ $a } cmp $tally{ $b } } keys %tally;
+
+die "$kh_old exists - aborting\n"
+   if -f $kh_old;
+
+rename $kh_file, $kh_old
+   or die "unable to rename $kh_file to $kh_old - aborting\n";
+
+die "$kh_file exists - aborting\n"
+   if -f $kh_file;
+
+rename $kh_new, $kh_file
+   or die "unable to rename $kh_new to $kh_file - aborting\n";
