@@ -52,3 +52,13 @@ die "$kh_file exists - aborting\n"
 
 rename $kh_new, $kh_file
    or die "unable to rename $kh_new to $kh_file - aborting\n";
+
+=pod
+
+ToDo:
+
+ - sort IP addresses properly
+
+ - add ability to merge multiple files into one
+
+=cut
