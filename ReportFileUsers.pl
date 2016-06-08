@@ -13,13 +13,16 @@ use Getopt::Long qw( :config no_ignore_case );
 
 my $nullinput = 0;
 my $pidprint = 0;
+my $singlecol = 0;
+
 my $ProcDir = "/proc/[0123456789]*";
 
 my( @paths, %PIDsToPaths, %PathsToPIDs, %PIDsToNames, %NamesToPIDs );
 
 GetOptions(
-   "null" => \$nullinput,
-   "pid"  => \$pidprint,
+   "null"   => \$nullinput,
+   "pid"    => \$pidprint,
+   "single" => \$singlecol,
 ) or die "getopts error";
 
 @paths = readline STDIN
@@ -90,8 +93,10 @@ sub PrintJoinedHashes {
 
             if( $pidprint ) {
                printf "$column1 $column2 $column3\n";
-            } else {
+            } elsif( not $singlecol ) {
                printf "$column1 $column3\n";
+            } else {
+               printf "$column1\n";
             }
          }
       }
