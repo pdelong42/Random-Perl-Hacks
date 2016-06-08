@@ -7,7 +7,7 @@ use English '-no_match_vars';
 
 my %NamesToPIDs;
 
-foreach my $filename ( glob "/proc/*/status" ) {
+foreach my $filename ( glob "/proc/[0123456789]*/stat" ) {
 
    my( $hand, $name, $PID );
 
@@ -18,20 +18,13 @@ foreach my $filename ( glob "/proc/*/status" ) {
 
    foreach( readline $hand ) {
 
-      if( m/^Name\s*:\s*(.*)/ ) {
-         $name = $1;
-         next;
-      }
+      next unless m/^\s*(\S+)\s+\(([^)]*)\)/;
 
-      if( m/^Pid:\s*:\s*(.*)/ ) {
+      $PID  = $1;
+      $name = $2;
 
-         $PID = $1;
-
-         warn "PID sanity check failed\n"
-            unless "/proc/${PID}/status" eq $filename;
-
-         next;
-      }
+      warn "PID sanity check failed\n"
+         unless "/proc/${PID}/stat" eq $filename;
    }
 
    push @{ $NamesToPIDs{ $name } }, $PID;
