@@ -11,17 +11,19 @@ use Getopt::Long qw( :config no_ignore_case );
 #$Data::Dumper::Indent   = 1;
 #$Data::Dumper::Sortkeys = 1;
 
-my $null = 0;
+my $nullinput = 0;
+my $pidprint = 0;
 my $ProcDir = "/proc/[0123456789]*";
 
 my( @paths, %PIDsToPaths, %PathsToPIDs, %PIDsToNames, %NamesToPIDs );
 
 GetOptions(
-   "null" => \$null,
+   "null" => \$nullinput,
+   "pid"  => \$pidprint,
 ) or die "getopts error";
 
 @paths = readline STDIN
-   unless $null;
+   unless $nullinput;
 
 chomp @paths;
 
@@ -41,8 +43,7 @@ foreach my $filename ( glob "${ProcDir}/maps" ) {
       my( $address, $perms, $offset, $dev, $inode, $pathname ) = split;
 
       next unless $pathname;
-
-      next unless( $null or grep { $pathname eq $ARG } @paths );
+      next unless( $nullinput or grep { $pathname eq $ARG } @paths );
 
       ++$PathsToPIDs{ $pathname }{ $PID };
       ++$PIDsToPaths{ $PID }{ $pathname };
@@ -87,7 +88,11 @@ sub PrintJoinedHashes {
 
          foreach my $column3 ( sort keys %$hashref4 ) {
 
-            printf "$column1 $column2 $column3\n";
+            if( $pidprint ) {
+               printf "$column1 $column2 $column3\n";
+            } else {
+               printf "$column1 $column3\n";
+            }
          }
       }
    }
