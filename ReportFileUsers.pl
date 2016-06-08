@@ -79,6 +79,8 @@ foreach my $filename ( glob "${ProcDir}/stat" ) {
 
 sub PrintJoinedHashes {
 
+   my %finalhash;
+
    my( $hashref1, $hashref3 ) = @_;
 
    foreach my $column1 ( sort keys %$hashref1 ) {
@@ -92,15 +94,18 @@ sub PrintJoinedHashes {
          foreach my $column3 ( sort keys %$hashref4 ) {
 
             if( $pidprint ) {
-               printf "$column1 $column2 $column3\n";
+               ++$finalhash{ "$column1 $column2 $column3" };
             } elsif( not $singlecol ) {
-               printf "$column1 $column3\n";
+               ++$finalhash{ "$column1 $column3" };
             } else {
-               printf "$column1\n";
+               ++$finalhash{ "$column1" };
             }
          }
       }
    }
+
+   print "$finalhash{ $ARG }x $ARG\n"
+      foreach sort keys %finalhash;
 }
 
 PrintJoinedHashes \%NamesToPIDs, \%PIDsToPaths;
