@@ -9,13 +9,15 @@ use Data::Dumper
 $Data::Dumper::Indent   = 1;
 $Data::Dumper::Sortkeys = 1;
 
+my $ProcDir = "/proc/[0123456789]*";
+
 my( %PIDsToPaths, %PathsToPIDs, %PIDsToNames, %NamesToPIDs );
 
 my @paths = readline STDIN;
 
 chomp @paths;
 
-foreach my $filename ( glob "/proc/[0123456789]*/maps" ) {
+foreach my $filename ( glob "${ProcDir}/maps" ) {
 
    my $hand;
 
@@ -39,7 +41,7 @@ foreach my $filename ( glob "/proc/[0123456789]*/maps" ) {
    }
 }
 
-foreach my $filename ( glob "/proc/[0123456789]*/stat" ) {
+foreach my $filename ( glob "${ProcDir}/stat" ) {
 
    my( $hand, $name, $PID );
 
@@ -88,14 +90,3 @@ PrintJoinedHashes \%NamesToPIDs, \%PIDsToPaths;
 printf "\n";
 
 PrintJoinedHashes \%PathsToPIDs, \%PIDsToNames;
-
-=pod
-
-foreach( keys %NamesToPIDs ) {
-   printf "%d x %s\n", scalar( @{ $NamesToPIDs{ $ARG } } ), $ARG;
-}
-
-foreach( readline STDIN ) {
-   
-}
-=cut
