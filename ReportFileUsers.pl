@@ -4,16 +4,24 @@ use strict;
 use warnings;
 
 use English '-no_match_vars';
-use Data::Dumper
+use Getopt::Long qw( :config no_ignore_case );
 
-$Data::Dumper::Indent   = 1;
-$Data::Dumper::Sortkeys = 1;
+#use Data::Dumper
+#
+#$Data::Dumper::Indent   = 1;
+#$Data::Dumper::Sortkeys = 1;
 
+my $null = 0;
 my $ProcDir = "/proc/[0123456789]*";
 
-my( %PIDsToPaths, %PathsToPIDs, %PIDsToNames, %NamesToPIDs );
+my( @paths, %PIDsToPaths, %PathsToPIDs, %PIDsToNames, %NamesToPIDs );
 
-my @paths = readline STDIN;
+GetOptions(
+   "null" => \$null,
+) or die "getopts error";
+
+@paths = readline STDIN
+   unless $null;
 
 chomp @paths;
 
@@ -34,7 +42,7 @@ foreach my $filename ( glob "${ProcDir}/maps" ) {
 
       next unless $pathname;
 
-      next if( @paths and not grep { $pathname eq $ARG } @paths );
+      next unless( $null or grep { $pathname eq $ARG } @paths );
 
       ++$PathsToPIDs{ $pathname }{ $PID };
       ++$PIDsToPaths{ $PID }{ $pathname };
