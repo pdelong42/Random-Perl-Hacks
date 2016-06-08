@@ -11,6 +11,10 @@ $Data::Dumper::Sortkeys = 1;
 
 my( %PIDsToPaths, %PathsToPIDs, %PIDsToNames, %NamesToPIDs );
 
+my @paths = readline STDIN;
+
+chomp @paths;
+
 foreach my $filename ( glob "/proc/[0123456789]*/maps" ) {
 
    my $hand;
@@ -26,7 +30,9 @@ foreach my $filename ( glob "/proc/[0123456789]*/maps" ) {
 
       my( $address, $perms, $offset, $dev, $inode, $pathname ) = split;
 
-      next unless defined $pathname;
+      next unless $pathname;
+
+      next if( @paths and not grep { $pathname eq $ARG } @paths );
 
       ++$PathsToPIDs{ $pathname }{ $PID };
       ++$PIDsToPaths{ $PID }{ $pathname };
