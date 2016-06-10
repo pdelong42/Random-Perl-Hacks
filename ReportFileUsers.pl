@@ -6,10 +6,19 @@ use warnings;
 use English '-no_match_vars';
 use Getopt::Long qw( :config no_ignore_case );
 
-#use Data::Dumper
-#
-#$Data::Dumper::Indent   = 1;
-#$Data::Dumper::Sortkeys = 1;
+=pod
+
+an example of wrapping this in a Bourne Shell function:
+
+   function foo () { rpm -q $* && rpm -ql $* | sudo ./ReportFileUsers.pl -s; }
+
+Pass this the same args as you would to "sudo yum update ...".  Be
+sure to include all dependencies explicitly, or you won't get a
+complete picture.  To put it plainly, if yum tells you that it's
+installing new packages for new dependencies, then go back and add
+those to your command-line explicitly.
+
+=cut
 
 my $nullinput = 0;
 my $pidprint = 0;
