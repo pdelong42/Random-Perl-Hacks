@@ -43,9 +43,12 @@ foreach my $filename ( glob "${ProcDir}/maps" ) {
 
    foreach( readline $hand ) {
 
-      my( $address, $perms, $offset, $dev, $inode, $pathname ) = split;
+      my( $address, $perms, $offset, $dev, $inode, @tmp ) = split;
 
-      next unless $pathname;
+      next unless @tmp;
+
+      my $pathname = "@tmp";
+
       next unless( $nullinput or grep { $pathname eq $ARG } @paths );
 
       ++$PathsToPIDs{ $pathname }{ $PID };
