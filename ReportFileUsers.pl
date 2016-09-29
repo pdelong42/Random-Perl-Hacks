@@ -18,20 +18,28 @@ complete picture.  To put it plainly, if yum tells you that it's
 installing new packages for new dependencies, then go back and add
 those to your command-line explicitly.
 
+Incidentally, this does the "reverse lookup":
+
+   function bar { sudo ./ReportFileUsers.pl -n -r $* | xargs rpm -qf | sort | uniq ; }
+
+This will tell you which packages will affect this process if they are updated.
+
 =cut
 
 my $nullinput = 0;
 my $pidprint = 0;
 my $singlecol = 0;
+my $reverse = 0;
 
 my $ProcDir = "/proc/[0123456789]*";
 
 my( @paths, %PIDsToPaths, %PathsToPIDs, %PIDsToNames, %NamesToPIDs );
 
 GetOptions(
-   "null"   => \$nullinput,
-   "pid"    => \$pidprint,
-   "single" => \$singlecol,
+   "null"    => \$nullinput,
+   "pid"     => \$pidprint,
+   "single"  => \$singlecol,
+   "reverse" => \$reverse,
 ) or die "getopts error";
 
 @paths = readline STDIN
@@ -63,6 +71,23 @@ foreach my $filename ( glob "${ProcDir}/maps" ) {
       ++$PathsToPIDs{ $pathname }{ $PID };
       ++$PIDsToPaths{ $PID }{ $pathname };
    }
+}
+
+if( @ARGV ) {
+
+   my %tmp;
+
+   foreach my $PID ( @ARGV ) {
+      ++$tmp{ $ARG } foreach keys %{ $PIDsToPaths{ $PID } };
+   }
+
+   foreach( sort keys %tmp ) {
+      next if( $ARG eq '/dev/zero (deleted)' );
+      next unless m/^\//;
+      print "$ARG\n"
+   }
+
+   exit;
 }
 
 foreach my $filename ( glob "${ProcDir}/stat" ) {
