@@ -10,7 +10,7 @@ use Getopt::Long qw( :config no_ignore_case );
 
 an example of wrapping this in a Bourne Shell function:
 
-   function foo () { rpm -q $* && rpm -ql $* | sudo ./ReportFileUsers.pl -s; }
+   function foo { rpm -q $* > /dev/null && rpm -ql $* | sudo ./ReportFileUsers.pl -s -p ; }
 
 Pass this the same args as you would to "sudo yum update ...".  Be
 sure to include all dependencies explicitly, or you won't get a
