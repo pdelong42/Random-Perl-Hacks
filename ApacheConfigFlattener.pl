@@ -74,7 +74,7 @@ sub ProcessFile($) {
       s/(?!^)\b[[:blank:]]+/ /g;
 
       # extract include filename
-      unless( m{ ^ \s* Include \s+ ( \S+ ) }ix ) {
+      unless( m{ ^ \s* Include (?: Optional )? \s+ ( \S+ ) }ix ) {
          # print and do next iteration if not include
          print;
          next;
